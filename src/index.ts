@@ -14,10 +14,10 @@ app.use("*", logger());
 app.use(
   "/api/*",
   cors({
-    origin: "https://portofolio-natania.vercel.app",
+    origin: "*",
     allowMethods: ["POST", "GET", "OPTIONS", "PUT", "DELETE"],
     allowHeaders: ["Content-Type", "Authorization"],
-    credentials: true,
+    credentials: false,
   })
 );
 
