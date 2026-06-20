@@ -95,9 +95,13 @@ auth.post("/login", async (c) => {
     }
 
     const token = crypto.randomBytes(48).toString("hex");
+
     const expiresAt = new Date(
       Date.now() + 24 * 60 * 60 * 1000
     );
+
+    console.log("EXPIRES AT:", expiresAt);
+    console.log("TYPE:", typeof expiresAt);
 
     await sql`
       DELETE FROM sessions
@@ -113,7 +117,7 @@ auth.post("/login", async (c) => {
       VALUES (
         ${admin.id},
         ${token},
-        ${expiresAt}
+        ${expiresAt.toISOString()}
       )
     `;
 
