@@ -3,6 +3,10 @@
     "strict": true,
     "jsx": "react-jsx",
     "moduleResolution": "Bundler",
-    "jsxImportSource": "hono/jsx"
+    "jsxImportSource": "hono/jsx",
+
+    "types": ["node"],
+    "target": "ESNext",
+    "module": "ESNext"
   }
 }
