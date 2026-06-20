@@ -14,13 +14,10 @@ app.use("*", logger());
 app.use(
   "/api/*",
   cors({
-    origin: [ "*"
-      
-    ],
+    origin: "http://localhost:5173",
     allowMethods: ["POST", "GET", "OPTIONS", "PUT", "DELETE"],
     allowHeaders: ["Content-Type", "Authorization"],
     credentials: true,
-    maxAge: 600,
   })
 );
 
