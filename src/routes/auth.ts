@@ -236,6 +236,86 @@ auth.post("/setup", async (c) => {
   }
 });
 
+// POST /api/auth/register
+auth.post("/register", async (c) => {
+  const body = await c.req.json().catch(() => null);
+
+  if (!body) {
+    return c.json(
+      {
+        success: false,
+        message: "Body tidak valid.",
+      },
+      400
+    );
+  }
+
+  const schema = z.object({
+    email: z.string().email("Email tidak valid"),
+    password: z.string().min(6, "Password minimal 6 karakter"),
+    name: z.string().min(1, "Nama wajib diisi").optional(),
+  });
+
+  const parsed = schema.safeParse(body);
+
+  if (!parsed.success) {
+    return c.json(
+      {
+        success: false,
+        message: parsed.error.issues[0].message,
+      },
+      400
+    );
+  }
+
+  const { email, password, name } = parsed.data;
+
+  try {
+    const existing = await sql`
+      SELECT id
+      FROM admins
+      WHERE email = ${email}
+      LIMIT 1
+    `;
+
+    if (existing.length > 0) {
+      return c.json(
+        {
+          success: false,
+          message: "Email sudah terdaftar.",
+        },
+        409
+      );
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const adminName = name ?? "Admin";
+
+    const inserted = await sql`
+      INSERT INTO admins (email, password, name)
+      VALUES (${email}, ${hashedPassword}, ${adminName})
+      RETURNING id, email, name
+    `;
+
+    return c.json({
+      success: true,
+      message: "Register berhasil!",
+      data: {
+        admin: inserted[0],
+      },
+    });
+  } catch (err) {
+    console.error("REGISTER ERROR:", err);
+    return c.json(
+      {
+        success: false,
+        message: "Server error.",
+      },
+      500
+    );
+  }
+});
+
 // POST /api/auth/logout
 auth.post("/logout", requireAuth, async (c) => {
   const token = c.req.header("Authorization")!.replace("Bearer ", "").trim();
