@@ -45,9 +45,9 @@ portfolios.get("/", async (c) => {
         p.gambar,
         p.github,
         p.urutan,
-        p.tanggal_mulai,
-        p.tanggal_selesai,
-        p.work_type,
+        p.tanggalMulai,
+        p.tanggalSelesai,
+        p.workType,
         COALESCE(p.roles, '{}'::text[]) AS roles
       FROM portfolios p
       ORDER BY p.urutan ASC, p.created_at DESC
@@ -108,6 +108,7 @@ portfolios.get("/", async (c) => {
       {
         success: false,
         error: String(err),
+        stack: err instanceof Error ? err.stack : null,
       },
       500
     );
