@@ -36,6 +36,8 @@ const portfolioSchema = z.object({
 portfolios.get("/", async (c) => {
   console.log("[GET /api/portofolio] start");
   try {
+    console.log("[GET /api/portofolio] STEP 1");
+
     const rows = await sql`
       SELECT
         p.id,
@@ -45,24 +47,33 @@ portfolios.get("/", async (c) => {
         p.gambar,
         p.github,
         p.urutan,
-        p.tanggalMulai,
-        p.tanggalSelesai,
-        p.workType,
+        p.tanggal_mulai,
+        p.tanggal_selesai,
+        p.work_type,
+
         COALESCE(p.roles, '{}'::text[]) AS roles
       FROM portfolios p
       ORDER BY p.urutan ASC, p.created_at DESC
     `;
-    console.log("[GET /api/portofolio] query portfolios selesai", (rows as any[]).length);
+
+    console.log("[GET /api/portofolio] STEP 2 rows", (rows as any[]).length);
+
 
 
     // Ambil features per portfolio (order by urutan)
+    console.log("[GET /api/portofolio] STEP 3");
+
     const featuresRows = await sql`
       SELECT pf.portfolio_id, pf.fitur, pf.urutan
       FROM portfolio_features pf
       ORDER BY pf.urutan ASC
     `;
-    console.log("[GET /api/portofolio] query features selesai", (featuresRows as any[]).length);
 
+    console.log("[GET /api/portofolio] STEP 3 featuresRows", (featuresRows as any[]).length);
+
+
+
+    console.log("[GET /api/portofolio] STEP 4 build feature map");
 
     const featureMap = new Map<string, string[]>();
     for (const fr of featuresRows as any[]) {
@@ -70,6 +81,7 @@ portfolios.get("/", async (c) => {
       arr.push(fr.fitur);
       featureMap.set(fr.portfolio_id, arr);
     }
+
 
     const toDurasi = (start: string | null, end: string | null) => {
       if (!start || !end) return null;
@@ -98,6 +110,8 @@ portfolios.get("/", async (c) => {
         roles,
         workType: p.work_type,
         durasi: toDurasi(p.tanggal_mulai, p.tanggal_selesai),
+
+
       };
     });
 
