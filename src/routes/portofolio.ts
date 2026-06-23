@@ -133,6 +133,16 @@ portfolios.get("/", async (c) => {
 portfolios.get("/:id", async (c) => {
   try {
     const { id } = c.req.param();
+
+// UUID v4 basic validation (DB column is uuid)
+    const isUuidV4 = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id);
+    // Kalau masih dapat value seperti "$portfolioId" (literaly), jangan sampai masuk query DB.
+    if (!isUuidV4) {
+      console.error('[GET /api/portofolio/:id] invalid id param:', id);
+      return c.json({ success: false, message: 'ID portofolio tidak valid.' }, 400);
+    }
+
+
     const p = await sql`
       SELECT
         p.id,
@@ -152,6 +162,7 @@ portfolios.get("/:id", async (c) => {
     `;
 
     if (!p[0]) return c.json({ success: false, message: "Data tidak ditemukan." }, 404);
+
 
     const featuresRows = await sql`
       SELECT pf.fitur, pf.urutan
