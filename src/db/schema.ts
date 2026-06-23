@@ -1,4 +1,4 @@
-import { pgTable, uuid, varchar, text, timestamp, boolean, integer } from "drizzle-orm/pg-core";
+import { pgTable, uuid, varchar, text, timestamp, boolean, integer, date } from "drizzle-orm/pg-core";
 
 export const admins = pgTable("admins", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -34,9 +34,25 @@ export const portfolios = pgTable("portfolios", {
   tag: varchar("tag", { length: 255 }).notNull(),
   gambar: text("gambar"),
   github: varchar("github", { length: 500 }),
+
+  // Detail pengerjaan
+  tanggalMulai: date("tanggal_mulai"),
+  tanggalSelesai: date("tanggal_selesai"),
+  workType: varchar("work_type", { length: 50 }), // Individu | Tim
+  roles: text("roles").array(), // text[]: multi-select roles
+
   urutan: integer("urutan").default(0).notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const portfolioFeatures = pgTable("portfolio_features", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  portfolioId: uuid("portfolio_id")
+    .notNull()
+    .references(() => portfolios.id, { onDelete: 'cascade' }),
+  fitur: varchar("fitur", { length: 255 }).notNull(),
+  urutan: integer("urutan").default(0).notNull(),
 });
 
 export const contactMessages = pgTable("contact_messages", {
