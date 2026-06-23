@@ -34,6 +34,7 @@ const portfolioSchema = z.object({
 
 // GET /api/portofolio - publik
 portfolios.get("/", async (c) => {
+  console.log("[GET /api/portofolio] start");
   try {
     const rows = await sql`
       SELECT
@@ -51,6 +52,8 @@ portfolios.get("/", async (c) => {
       FROM portfolios p
       ORDER BY p.urutan ASC, p.created_at DESC
     `;
+    console.log("[GET /api/portofolio] query portfolios selesai", (rows as any[]).length);
+
 
     // Ambil features per portfolio (order by urutan)
     const featuresRows = await sql`
@@ -58,6 +61,8 @@ portfolios.get("/", async (c) => {
       FROM portfolio_features pf
       ORDER BY pf.urutan ASC
     `;
+    console.log("[GET /api/portofolio] query features selesai", (featuresRows as any[]).length);
+
 
     const featureMap = new Map<string, string[]>();
     for (const fr of featuresRows as any[]) {
@@ -98,7 +103,14 @@ portfolios.get("/", async (c) => {
 
     return c.json({ success: true, data });
   } catch (err) {
-    return c.json({ success: false, message: "Gagal mengambil data." }, 500);
+    console.error("[GET /api/portofolio] error:", err);
+    return c.json(
+      {
+        success: false,
+        error: String(err),
+      },
+      500
+    );
   }
 });
 
@@ -162,6 +174,7 @@ portfolios.get("/:id", async (c) => {
       },
     });
   } catch (err) {
+    console.error("[GET /api/portofolio/:id] error:", err);
     return c.json({ success: false, message: "Gagal mengambil detail." }, 500);
   }
 });
